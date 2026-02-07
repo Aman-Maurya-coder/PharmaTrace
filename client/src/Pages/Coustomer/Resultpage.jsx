@@ -7,7 +7,6 @@ export default function ResultPage() {
   const [status, setStatus] = useState("loading");
 
   useEffect(() => {
-    // Simulate blockchain verification
     setTimeout(() => {
       if (state?.batchId === "BATCH-2023-XJ9") {
         setStatus("success");
@@ -25,11 +24,9 @@ export default function ResultPage() {
         backdrop-blur-xl rounded-2xl shadow-xl p-8 text-center">
 
         {status === "loading" && (
-          <>
-            <p className="text-lg font-medium text-slate-700">
-              Verifying on blockchain…
-            </p>
-          </>
+          <p className="text-lg font-medium text-slate-700">
+            Verifying on blockchain…
+          </p>
         )}
 
         {status === "success" && (
@@ -39,7 +36,7 @@ export default function ResultPage() {
               Authentic Medicine
             </h2>
             <p className="text-slate-600 mt-2">
-              Batch verified successfully on blockchain.
+              Batch ID verified successfully.
             </p>
           </>
         )}
@@ -51,7 +48,7 @@ export default function ResultPage() {
               Counterfeit Detected
             </h2>
             <p className="text-slate-600 mt-2">
-              Batch ID not found in registry.
+              Batch ID not found.
             </p>
           </>
         )}
@@ -66,4 +63,3 @@ export default function ResultPage() {
     </div>
   );
 }
-
