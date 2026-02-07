@@ -1,10 +1,8 @@
-import { QrReader } from "react-qr-reader";
+import { Scanner } from "@yudiel/react-qr-scanner";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 
-export default function ScanPage() {
+export default function Scan() {
   const navigate = useNavigate();
-  const [error, setError] = useState("");
 
   return (
     <div className="min-h-screen flex items-center justify-center
@@ -18,32 +16,22 @@ export default function ScanPage() {
         </h1>
 
         <p className="mt-2 text-slate-600">
-          Align the QR code within the frame to verify authenticity.
+          Align the QR code inside the frame.
         </p>
 
         <div className="mt-8 rounded-xl overflow-hidden border">
-          <QrReader
+          <Scanner
             constraints={{ facingMode: "environment" }}
-            scanDelay={500}
-            onResult={(result, err) => {
-              if (!!result) {
+            onScan={(result) => {
+              if (result?.[0]?.rawValue) {
                 navigate("/result", {
-                  state: { batchId: result?.text },
+                  state: { batchId: result[0].rawValue },
                 });
               }
-              if (!!err) {
-                setError("Camera permission required");
-              }
             }}
-            style={{ width: "100%" }}
+            onError={(error) => console.error(error)}
           />
         </div>
-
-        {error && (
-          <p className="mt-4 text-sm text-red-600">
-            {error}
-          </p>
-        )}
       </div>
     </div>
   );
