@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function Scan() {
+export default function dashboard() {
   return (
     <div>
       hi

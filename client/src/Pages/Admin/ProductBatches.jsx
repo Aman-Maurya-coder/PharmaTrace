@@ -1,9 +1,9 @@
 import React from 'react'
 
-export default function Scan() {
+export default function ProductBatches() {
   return (
     <div>
-      hi
+      
     </div>
   )
 }
