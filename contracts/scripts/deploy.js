@@ -1,5 +1,7 @@
 async function main() {
-  const PharmaTrace = await ethers.getContractFactory("PharmaTrace");
+  const PharmaTrace = await ethers.getContractFactory(
+    "contracts/PharmaTrace.sol:PharmaTrace"
+  );
   const contract = await PharmaTrace.deploy();
   await contract.waitForDeployment();
 

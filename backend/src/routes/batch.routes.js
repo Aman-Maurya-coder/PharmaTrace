@@ -9,7 +9,7 @@ router.get("/", batchController.list);
 router.post("/", AuthMiddleware, batchController.create);
 router.get("/:batchId", batchController.getById);
 router.post("/:batchId/confirm-mint", AuthMiddleware, batchController.confirmMint);
-router.post("/:batchId/confirm-mint", AuthMiddleware, batchController.confirmMint);
+router.get("/:batchId/qr-package", qrExportController.exportQrZip);
 router.get("/:batchId/export/manifest", qrExportController.exportManifest);
 router.get("/:batchId/export/qr-zip", qrExportController.exportQrZip);
 

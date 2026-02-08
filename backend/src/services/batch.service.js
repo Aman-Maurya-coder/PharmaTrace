@@ -33,13 +33,29 @@ class BatchService {
       err.status = 400;
       throw err;
     }
+
+    const productName = payload.productName ? String(payload.productName) : undefined;
+    const companyName = payload.companyName
+      ? String(payload.companyName)
+      : payload.manufacturerName
+      ? String(payload.manufacturerName)
+      : undefined;
+    const quantity = Number.parseInt(payload.quantity, 10);
+
     const doc = await Batch.create({
       batchId: String(payload.batchId),
       manufacturerId: payload.manufacturerId ? String(payload.manufacturerId) : undefined,
       productId: payload.productId ? String(payload.productId) : undefined,
-      name: payload.name ? String(payload.name) : undefined,
+      name: payload.name ? String(payload.name) : productName,
+      productName,
+      companyName,
       size: payload.size ?? undefined,
-      expiresAt: payload.expiresAt ? new Date(payload.expiresAt) : undefined,
+      quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : undefined,
+      expiresAt: payload.expiresAt
+        ? new Date(payload.expiresAt)
+        : payload.expiryDate
+        ? new Date(payload.expiryDate)
+        : undefined,
       status: payload.status ?? "active"
     });
     return { batchId: doc.batchId, status: doc.status };
@@ -59,21 +75,34 @@ class BatchService {
       throw err;
     }
 
-    const quantity = Number.parseInt(payload.quantity, 10);
+    const quantitySource = payload.quantity ?? batch.quantity ?? batch.size;
+    const quantity = Number.parseInt(quantitySource, 10);
     if (!Number.isFinite(quantity) || quantity <= 0) {
       const err = new Error("quantity must be a positive number");
       err.status = 400;
       throw err;
     }
 
-    const mintTxHash = payload.mintTxHash ? String(payload.mintTxHash) : null;
+    const mintTxHash = payload.mintTxHash
+      ? String(payload.mintTxHash)
+      : payload.txHash
+      ? String(payload.txHash)
+      : null;
     if (!mintTxHash) {
       const err = new Error("mintTxHash is required");
       err.status = 400;
       throw err;
     }
 
-    const companyName = payload.companyName ? String(payload.companyName) : null;
+    const companyName = payload.companyName
+      ? String(payload.companyName)
+      : batch.companyName
+      ? String(batch.companyName)
+      : batch.productName
+      ? String(batch.productName)
+      : batch.name
+      ? String(batch.name)
+      : null;
     if (!companyName) {
       const err = new Error("companyName is required");
       err.status = 400;
@@ -125,7 +154,13 @@ class BatchService {
       }
     );
 
-    return { inserted: insertedTotal, merkleRoot: merkleRoot.root };
+    return {
+      batchId: String(batchId),
+      status: "minted",
+      bottlesCreated: insertedTotal,
+      merkleRoot: merkleRoot.root,
+      mintTxHash
+    };
   }
 }
 

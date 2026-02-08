@@ -4,6 +4,7 @@ import QRCode from "qrcode";
 import { Bottle } from "../models/bottle.model.js";
 import { fileService } from "./file.service.js";
 import { qrGenerationService } from "./qr-generation.service.js";
+import { securityService } from "./security.service.js";
 
 class QRExportService {
   async getManifestStream(batchId, query = {}) {
@@ -38,6 +39,16 @@ class QRExportService {
   }
 
   async getQrZipStream(batchId) {
+    // Validate QR token secret early for clearer error
+    securityService.getQrTokenSecret();
+
+    const total = await Bottle.countDocuments({ batchId: String(batchId) });
+    if (total === 0) {
+      const err = new Error("No bottles found for this batch");
+      err.status = 404;
+      throw err;
+    }
+
     const archive = archiver("zip", { zlib: { level: 9 } });
     const cursor = Bottle.find({ batchId: String(batchId) })
       .select("bottleId")

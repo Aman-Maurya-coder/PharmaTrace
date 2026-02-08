@@ -39,7 +39,7 @@ const SUPPORTED_NETWORKS = {
   // Add more networks as needed
 };
 
-const DEFAULT_NETWORK_ID = 11155111; // Sepolia by default
+const DEFAULT_NETWORK_ID = Number(import.meta.env.VITE_NETWORK_ID) || 11155111; // Sepolia by default
 
 // ============================================
 // WALLET & PROVIDER
@@ -143,9 +143,18 @@ export const switchNetwork = async (chainId = DEFAULT_NETWORK_ID) => {
  */
 export const getContract = async () => {
   const { contractAddress, contractABI } = getContractConfig();
-  
+
   if (contractAddress === "0x0000000000000000000000000000000000000000") {
     throw new Error("Contract address not configured. Please set it in Settings.");
+  }
+
+  const provider = getProvider();
+  const code = await provider.getCode(contractAddress);
+  if (!code || code === "0x") {
+    throw new Error(
+      "No contract found at the configured address for the current network. " +
+        "Check VITE_CONTRACT_ADDRESS and VITE_NETWORK_ID or switch networks."
+    );
   }
 
   const signer = await getSigner();
@@ -198,6 +207,39 @@ export const mintBatchOnChain = async (batchId, expiryDate, merkleRoot) => {
     if (formattedMerkleRoot.length !== 66) {
       // If merkleRoot is not provided or invalid, use zero hash
       formattedMerkleRoot = zeroHash;
+    }
+
+    // Check if batch already exists on-chain
+    const existingBatch = await contract.batches(batchId);
+    if (existingBatch?.exists) {
+      throw new Error("Batch already minted on-chain");
+    }
+
+    // Preflight call to surface revert reasons before sending tx
+    try {
+      await contract.mintBatch.staticCall(
+        batchId,
+        expiryTimestamp,
+        formattedMerkleRoot
+      );
+    } catch (callError) {
+      const reason =
+        callError?.reason ||
+        callError?.shortMessage ||
+        callError?.message ||
+        "Mint pre-check failed";
+
+      if (String(reason).includes("Batch already minted")) {
+        throw new Error("Batch already minted on-chain");
+      }
+      if (String(reason).includes("Expiry must be in future")) {
+        throw new Error("Expiry date must be a valid future date");
+      }
+      if (String(reason).includes("Batch ID cannot be empty")) {
+        throw new Error("Batch ID cannot be empty");
+      }
+
+      throw new Error(reason);
     }
 
     console.log("Minting batch on blockchain:", {
