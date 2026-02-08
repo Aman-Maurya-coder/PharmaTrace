@@ -1,11 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-<<<<<<< HEAD
-import { verifyQrToken } from "../../services/api";
-import TopNav from "../Components/TopNav";
-=======
 import { claimMedicine, verifyQrToken } from "../../services/api";
->>>>>>> 16e8502773a466f79cf656eefd96ea5b2b09fc0b
+import TopNav from "../Components/TopNav";
 
 export default function Result() {
   const { state } = useLocation(); // { batchId }
