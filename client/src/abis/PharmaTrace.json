@@ -1,0 +1,347 @@
+[
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "string",
+        "name": "batchId",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "expiryTimestamp",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "merkleRoot",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "minter",
+        "type": "address"
+      }
+    ],
+    "name": "BatchMinted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "medicineHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "batchId",
+        "type": "uint256"
+      }
+    ],
+    "name": "MedicineActivated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "medicineHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "claimer",
+        "type": "address"
+      }
+    ],
+    "name": "MedicineClaimed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "medicineHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "reason",
+        "type": "string"
+      }
+    ],
+    "name": "MedicineInvalidated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "medicineHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "batchId",
+        "type": "uint256"
+      }
+    ],
+    "name": "activateMedicine",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "name": "batches",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "batchId",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "expiryTimestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "merkleRoot",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "minter",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "exists",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "medicineHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "claimMedicine",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "batchId",
+        "type": "string"
+      }
+    ],
+    "name": "getBatch",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "batchId",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiryTimestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "merkleRoot",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "minter",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct PharmaTrace.Batch",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "medicineHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "string",
+        "name": "reason",
+        "type": "string"
+      }
+    ],
+    "name": "invalidateMedicine",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "batchId",
+        "type": "string"
+      }
+    ],
+    "name": "isBatchValid",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "manufacturer",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "medicineBatch",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "medicineState",
+    "outputs": [
+      {
+        "internalType": "enum PharmaTrace.MedicineState",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "batchId",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "expiryTimestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "merkleRoot",
+        "type": "bytes32"
+      }
+    ],
+    "name": "mintBatch",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "medicineHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "validateMedicine",
+    "outputs": [
+      {
+        "internalType": "enum PharmaTrace.MedicineState",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
