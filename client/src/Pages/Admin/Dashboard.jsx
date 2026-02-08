@@ -1,32 +1,31 @@
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import {
   FaLayerGroup,
   FaBoxOpen,
   FaExclamationTriangle,
   FaCheckCircle,
-  FaPlus,
-  FaQrcode,
   FaPills,
   FaFingerprint,
-  FaRedoAlt,
   FaRecycle,
   FaChartLine,
   FaArrowUp,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../Components/Sidebar";
+import { getGeoAnalytics, getManufacturerOverview } from "../../services/api";
 
-const sampleData = {
-  numberOfMedicines: 312,
-  totalMedicineCount: 15420,
-  totalQRScans: 2340,
-  uniqueMedicines: 287,
-  duplicateScanAttempts: 18,
-  confirmedCounterfeits: 6,
-  returnedMedicines: 42,
-  restockedMedicines: 128,
-  monthSeries: [120, 180, 140, 220, 190, 240, 200, 260],
-  sources: { verified: 58, suspicious: 22, manual: 20 },
+const defaultData = {
+  numberOfMedicines: 0,
+  totalMedicineCount: 0,
+  totalQRScans: 0,
+  uniqueMedicines: 0,
+  duplicateScanAttempts: 0,
+  confirmedCounterfeits: 0,
+  returnedMedicines: 0,
+  restockedMedicines: 0,
+  monthSeries: [],
+  sources: { verified: 0, suspicious: 0, manual: 0 },
 };
 
 const topCards = [
@@ -177,7 +176,68 @@ function Donut({ parts = {} }) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const data = sampleData;
+  const [data, setData] = useState(defaultData);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadDashboard() {
+      try {
+        const [overview, geo] = await Promise.all([
+          getManufacturerOverview(),
+          getGeoAnalytics(),
+        ]);
+
+        if (!mounted) return;
+
+        const monthSeries =
+          overview?.monthSeries ||
+          overview?.scanSeries ||
+          overview?.monthlyScans ||
+          [];
+
+        const sources = overview?.sources || geo?.sources || {
+          verified: geo?.verified ?? 0,
+          suspicious: geo?.suspicious ?? 0,
+          manual: geo?.manual ?? 0,
+        };
+
+        setData({
+          numberOfMedicines:
+            overview?.numberOfMedicines ?? overview?.totalBatches ?? 0,
+          totalMedicineCount:
+            overview?.totalMedicineCount ?? overview?.totalUnits ?? 0,
+          totalQRScans:
+            overview?.totalQRScans ?? overview?.totalScans ?? 0,
+          uniqueMedicines:
+            overview?.uniqueMedicines ?? overview?.uniqueBatches ?? 0,
+          duplicateScanAttempts:
+            overview?.duplicateScanAttempts ?? overview?.duplicateScans ?? 0,
+          confirmedCounterfeits:
+            overview?.confirmedCounterfeits ?? overview?.counterfeitCount ?? 0,
+          returnedMedicines:
+            overview?.returnedMedicines ?? overview?.returns ?? 0,
+          restockedMedicines:
+            overview?.restockedMedicines ?? overview?.restocks ?? 0,
+          monthSeries: Array.isArray(monthSeries) ? monthSeries : [],
+          sources,
+        });
+      } catch (err) {
+        if (!mounted) return;
+        setError(err.message || "Failed to load dashboard data.");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    loadDashboard();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <Sidebar>
@@ -199,17 +259,14 @@ export default function Dashboard() {
                 <p className="text-gray-600 mt-3 text-base">
                   Supply chain & anti-counterfeit analytics
                 </p>
+                {loading && (
+                  <p className="text-xs text-gray-500 mt-2">Loading data…</p>
+                )}
+                {error && (
+                  <p className="text-xs text-rose-600 mt-2">{error}</p>
+                )}
               </div>
 
-              <motion.button
-                whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(99, 102, 241, 0.3)" }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/admin/create-batch")}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-700 hover:to-cyan-600 text-white px-6 py-3 rounded-xl shadow-lg transition-all duration-300"
-              >
-                <FaPlus size={16} />
-                <span className="font-semibold">Create New Batch</span>
-              </motion.button>
             </div>
           </motion.div>
 
@@ -353,38 +410,6 @@ export default function Dashboard() {
                 </div>
 
                 <Donut parts={data.sources} />
-              </motion.div>
-
-              <motion.div 
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 }}
-                className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100"
-              >
-                <h4 className="text-lg font-bold text-gray-800 mb-4">Quick Actions</h4>
-
-                <div className="space-y-3">
-                  {[
-                    { label: "Import QR Scans", route: "/admin/import-qr", icon: <FaQrcode />, color: "indigo" },
-                    { label: "Manage Returns", route: "/admin/manage-returns", icon: <FaRedoAlt />, color: "amber" },
-                    { label: "Export Reports", route: "/admin/reports", icon: <FaChartLine />, color: "green" }
-                  ].map((action) => (
-                    <motion.button
-                      key={action.label}
-                      whileHover={{ scale: 1.02, x: 4 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => navigate(action.route)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-${action.color}-200 hover:border-${action.color}-400 hover:bg-${action.color}-50 transition-all duration-300 group`}
-                    >
-                      <div className={`p-2 rounded-lg bg-${action.color}-100 text-${action.color}-600 group-hover:bg-${action.color}-200 transition-colors`}>
-                        {action.icon}
-                      </div>
-                      <span className="font-medium text-gray-700 group-hover:text-gray-900">
-                        {action.label}
-                      </span>
-                    </motion.button>
-                  ))}
-                </div>
               </motion.div>
             </div>
           </section>

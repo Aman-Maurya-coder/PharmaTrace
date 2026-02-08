@@ -15,6 +15,20 @@ export default function Result() {
 
     async function verifyScannedToken() {
       const qrToken = state?.batchId;
+      const preverifiedStatus = state?.verificationStatus;
+      const preverifiedData = state?.verificationData;
+      const preverifiedError = state?.errorMessage;
+
+      if (preverifiedStatus) {
+        if (!mounted) return;
+        setVerificationData(preverifiedData || null);
+        setStatus(preverifiedStatus === "error" ? "error" : "success");
+        if (preverifiedStatus === "error") {
+          setErrorMessage(preverifiedError || "Failed to verify QR token.");
+        }
+        return;
+      }
+
       if (!qrToken) {
         if (mounted) {
           setStatus("error");
