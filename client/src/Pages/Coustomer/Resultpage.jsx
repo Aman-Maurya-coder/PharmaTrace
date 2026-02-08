@@ -1,7 +1,11 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+<<<<<<< HEAD
 import { verifyQrToken } from "../../services/api";
 import TopNav from "../Components/TopNav";
+=======
+import { claimMedicine, verifyQrToken } from "../../services/api";
+>>>>>>> 16e8502773a466f79cf656eefd96ea5b2b09fc0b
 
 export default function Result() {
   const { state } = useLocation(); // { batchId }
@@ -9,6 +13,9 @@ export default function Result() {
   const [status, setStatus] = useState("loading");
   const [errorMessage, setErrorMessage] = useState("");
   const [verificationData, setVerificationData] = useState(null);
+  const [claimStatus, setClaimStatus] = useState("idle");
+  const [claimError, setClaimError] = useState("");
+  const [isClaiming, setIsClaiming] = useState(false);
   // loading | success | error
 
   useEffect(() => {
@@ -65,6 +72,32 @@ export default function Result() {
     };
   }, [state]);
 
+  async function handleClaim() {
+    const qrToken = state?.batchId;
+    if (!qrToken) {
+      setClaimStatus("error");
+      setClaimError("No QR token available to claim.");
+      return;
+    }
+
+    setIsClaiming(true);
+    setClaimError("");
+
+    try {
+      const result = await claimMedicine(qrToken);
+      const claimed = Boolean(result?.claimed ?? result?.state === "claimed");
+      setClaimStatus(claimed ? "success" : "error");
+      if (!claimed) {
+        setClaimError(result?.reason || "Unable to claim this medicine.");
+      }
+    } catch (error) {
+      setClaimStatus("error");
+      setClaimError(error.message || "Failed to claim medicine.");
+    } finally {
+      setIsClaiming(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-linear-to-br from-[#EEF2FF] via-[#FDF2F8] to-[#ECFEFF]">
       <TopNav />
@@ -113,6 +146,37 @@ export default function Result() {
                 <p className="font-medium text-slate-900">Backend API</p>
               </div>
             )}
+
+            <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-left">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-emerald-800">Claim this medicine</p>
+                  <p className="text-xs text-emerald-700">
+                    Mark as claimed to prevent duplicate validations.
+                  </p>
+                </div>
+                <button
+                  onClick={handleClaim}
+                  disabled={isClaiming || claimStatus === "success"}
+                  className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {claimStatus === "success"
+                    ? "Claimed"
+                    : isClaiming
+                    ? "Claiming..."
+                    : "Claim Medicine"}
+                </button>
+              </div>
+
+              {claimStatus === "success" && (
+                <p className="mt-3 text-xs text-emerald-700">
+                  Medicine successfully claimed.
+                </p>
+              )}
+              {claimStatus === "error" && claimError && (
+                <p className="mt-3 text-xs text-rose-700">{claimError}</p>
+              )}
+            </div>
           </>
         )}
 

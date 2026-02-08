@@ -125,5 +125,5 @@ export const verifyQrToken = async (qrToken) => {
 export const validateMedicine = (medicineHash) =>
   api.post("/scan/validate", { medicineHash });
 
-export const claimMedicine = (medicineHash) =>
-  api.post("/scan/claim", { medicineHash });
+export const claimMedicine = (qrToken) =>
+  api.post("/scan/claim", { qrToken });

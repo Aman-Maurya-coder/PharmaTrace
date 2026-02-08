@@ -12,6 +12,8 @@ import {
   FaRecycle,
   FaChartLine,
   FaArrowUp,
+  FaQrcode,
+  FaRedoAlt,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../Components/Sidebar";

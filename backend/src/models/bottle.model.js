@@ -10,6 +10,7 @@ const BottleSchema = new mongoose.Schema(
   {
     bottleId: { type: String, required: true },
     batchId: { type: String, required: true },
+    serialNo: { type: Number },
     qrTokenHash: { type: String, required: true },
     state: { type: String, default: "active" },
     manufacturedAt: { type: Date },
