@@ -9,6 +9,7 @@ import ProductBatches from './Pages/Admin/ProductBatches'
 import Resultpage from './Pages/Coustomer/Resultpage'
 import LandingPage from './Pages/LandingPage'
 import Settings from './Pages/Admin/Setting'
+import Analytics from './Pages/Admin/Analytics'
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path='/admin/addProduct' element={<AddProduct />} />
           <Route path='/admin/productBatch' element={<ProductBatches />} />
           <Route path='/admin/settings' element={<Settings />} />          
+          <Route path='/admin/analytics' element={<Analytics />} />
         </Routes>
       </BrowserRouter>
     </>

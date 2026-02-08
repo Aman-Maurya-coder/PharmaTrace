@@ -1,23 +1,53 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { verifyQrToken } from "../../services/api";
 
 export default function Result() {
   const { state } = useLocation(); // { batchId }
   const navigate = useNavigate();
-  const [status, setStatus] = useState("loading"); 
+  const [status, setStatus] = useState("loading");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [verificationData, setVerificationData] = useState(null);
   // loading | success | error
 
   useEffect(() => {
-    // Simulate blockchain verification (replace with contract call later)
-    const timer = setTimeout(() => {
-      if (state?.batchId === "BATCH-2023-XJ9") {
-        setStatus("success");
-      } else {
-        setStatus("error");
-      }
-    }, 1400);
+    let mounted = true;
 
-    return () => clearTimeout(timer);
+    async function verifyScannedToken() {
+      const qrToken = state?.batchId;
+      if (!qrToken) {
+        if (mounted) {
+          setStatus("error");
+          setErrorMessage("No QR token found in scan payload.");
+        }
+        return;
+      }
+
+      try {
+        const data = await verifyQrToken(qrToken);
+        if (!mounted) return;
+
+        setVerificationData(data);
+
+        const isInvalid =
+          data?.valid === false ||
+          data?.isAuthentic === false ||
+          data?.authentic === false ||
+          String(data?.status || "").toLowerCase() === "counterfeit";
+
+        setStatus(isInvalid ? "error" : "success");
+      } catch (error) {
+        if (!mounted) return;
+        setStatus("error");
+        setErrorMessage(error.message || "Failed to verify QR token.");
+      }
+    }
+
+    verifyScannedToken();
+
+    return () => {
+      mounted = false;
+    };
   }, [state]);
 
   return (
@@ -61,6 +91,13 @@ export default function Result() {
                 {state?.batchId}
               </p>
             </div>
+
+            {verificationData && (
+              <div className="mt-3 rounded-xl border border-slate-200 p-4 text-left">
+                <p className="text-sm text-slate-500">Verification Source</p>
+                <p className="font-medium text-slate-900">Backend API</p>
+              </div>
+            )}
           </>
         )}
 
@@ -75,7 +112,7 @@ export default function Result() {
               Counterfeit Detected
             </h2>
             <p className="mt-2 text-slate-600">
-              This batch ID does not exist in the registry.
+              {errorMessage || "This batch ID does not exist in the registry."}
             </p>
 
             <div className="mt-6 rounded-xl border border-slate-200 p-4 text-left">

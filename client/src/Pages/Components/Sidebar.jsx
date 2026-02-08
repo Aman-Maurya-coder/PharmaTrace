@@ -25,11 +25,11 @@ const sidebarItems = [
     icon: <FaClipboardList />,
     path: "/admin/productBatch",
   },
-  // {
-  //   name: "Analytics",
-  //   icon: <FaChartLine />,
-  //   path: "/admin/analytics",
-  // },
+  {
+    name: "Analytics",
+    icon: <FaChartLine />,
+    path: "/admin/analytics",
+  },
   {
     name: "Settings",
     icon: <FaCogs />,
