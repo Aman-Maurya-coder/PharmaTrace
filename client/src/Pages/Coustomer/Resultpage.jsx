@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { verifyQrToken } from "../../services/api";
+import TopNav from "../Components/TopNav";
 
 export default function Result() {
   const { state } = useLocation(); // { batchId }
@@ -65,11 +66,11 @@ export default function Result() {
   }, [state]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center
-      bg-linear-to-br from-[#EEF2FF] via-[#FDF2F8] to-[#ECFEFF] px-6">
-
-      <div className="w-full max-w-xl bg-white/70 backdrop-blur-xl
-        rounded-2xl shadow-xl p-8 text-center">
+    <div className="min-h-screen bg-linear-to-br from-[#EEF2FF] via-[#FDF2F8] to-[#ECFEFF]">
+      <TopNav />
+      <div className="flex items-center justify-center px-6 py-10">
+        <div className="w-full max-w-xl bg-white/70 backdrop-blur-xl
+          rounded-2xl shadow-xl p-8 text-center">
 
         {/* Loading */}
         {status === "loading" && (
@@ -145,6 +146,7 @@ export default function Result() {
           px-6 py-3 font-medium text-white hover:bg-blue-700 transition">
           Scan Another Medicine
         </button>
+        </div>
       </div>
     </div>
   );

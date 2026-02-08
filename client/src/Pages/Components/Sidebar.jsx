@@ -7,6 +7,7 @@ import {
   FaCogs,
 } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
+import TopNav from "./TopNav";
 
 /* 🔁 Change paths anytime */
 const sidebarItems = [
@@ -76,8 +77,11 @@ export default function Sidebar({ children }) {
       </aside>
 
       {/* ================= PAGE CONTENT ================= */}
-      <main className="flex-1 p-6">
-        {children}
+      <main className="flex-1 flex flex-col">
+        <TopNav />
+        <div className="flex-1 p-6">
+          {children}
+        </div>
       </main>
     </div>
   );

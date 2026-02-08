@@ -2,6 +2,7 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import { useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 import { verifyQrToken } from "../../services/api";
+import TopNav from "../Components/TopNav";
 
 export default function Scan() {
   const navigate = useNavigate();
@@ -57,7 +58,9 @@ export default function Scan() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] via-[#eef2ff] to-[#e0f2fe] px-4 sm:px-6 lg:px-10 py-10">
+    <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] via-[#eef2ff] to-[#e0f2fe]">
+      <TopNav />
+      <div className="px-4 sm:px-6 lg:px-10 py-10">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8 text-center">
           <p className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm">
@@ -198,6 +201,7 @@ export default function Scan() {
               </ul>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
