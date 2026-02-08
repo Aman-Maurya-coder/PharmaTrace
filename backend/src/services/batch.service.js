@@ -130,6 +130,7 @@ class BatchService {
         batchDocs.push({
           bottleId,
           batchId: String(batchId),
+          serialNo,
           qrTokenHash,
           state: "active"
         });

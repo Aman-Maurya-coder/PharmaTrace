@@ -2,9 +2,9 @@ import { Readable } from "stream";
 import archiver from "archiver";
 import QRCode from "qrcode";
 import { Bottle } from "../models/bottle.model.js";
+import { Batch } from "../models/batch.model.js";
 import { fileService } from "./file.service.js";
 import { qrGenerationService } from "./qr-generation.service.js";
-import { securityService } from "./security.service.js";
 
 class QRExportService {
   async getManifestStream(batchId, query = {}) {
@@ -39,8 +39,28 @@ class QRExportService {
   }
 
   async getQrZipStream(batchId) {
-    // Validate QR token secret early for clearer error
-    securityService.getQrTokenSecret();
+    const batch = await Batch.findOne({ batchId: String(batchId) }).lean();
+    if (!batch) {
+      const err = new Error("Batch not found");
+      err.status = 404;
+      throw err;
+    }
+
+    const companyName = batch.companyName || batch.productName || batch.name || null;
+    if (!companyName) {
+      const err = new Error("companyName is required to generate QR tokens");
+      err.status = 400;
+      throw err;
+    }
+
+    const expiryDate = batch.expiresAt
+      ? new Date(batch.expiresAt).toISOString().slice(0, 10)
+      : "";
+    if (!expiryDate) {
+      const err = new Error("expiryDate is required to generate QR tokens");
+      err.status = 400;
+      throw err;
+    }
 
     const total = await Bottle.countDocuments({ batchId: String(batchId) });
     if (total === 0) {
@@ -59,7 +79,12 @@ class QRExportService {
     setImmediate(async () => {
       try {
         for await (const doc of cursor) {
-          const token = await qrGenerationService.generateToken({ bottleId: doc.bottleId });
+          const token = await qrGenerationService.generateToken({
+            bottleId: doc.bottleId,
+            batchId: String(batchId),
+            companyName,
+            expiryDate
+          });
           const pngBuffer = await QRCode.toBuffer(token, { type: "png" });
           archive.append(pngBuffer, { name: `${doc.bottleId}.png` });
         }
